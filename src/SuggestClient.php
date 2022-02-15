@@ -7,10 +7,12 @@ namespace Dadata;
 class SuggestClient extends ClientBase
 {
     const BASE_URL = "https://suggestions.dadata.ru/suggestions/api/4_1/rs/";
+    private Settings $settings;
 
     public function __construct(Settings $settings)
     {
         parent::__construct(self::BASE_URL, $settings);
+        $this->settings = $settings;
     }
 
     public function findAffiliated(string $query, int $count = Settings::SUGGESTION_COUNT, array $kwargs = []): array
@@ -28,13 +30,18 @@ class SuggestClient extends ClientBase
         string $query,
         int $count = Settings::SUGGESTION_COUNT,
         array $kwargs = []
-    ): array {
+    )
+    {
         $url = "findById/$name";
-        $data = ["query" => $query, "count" => $count];
-        $data = $data + $kwargs;
+        if($this->settings->isJSON()) {
+            $data = ["query" => $query, "count" => $count];
+            $data = $data + $kwargs;
+        } else {
+            $data = ["<req><query>$query</query><count>$count</count></req>"];
+        }
         $response = $this->post($url, $data);
 
-        return $response["suggestions"];
+        return $this->settings->isJSON() ? $response["suggestions"] : $response;
     }
 
     public function geolocate(
