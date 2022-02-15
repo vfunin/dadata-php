@@ -1,56 +1,65 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Dadata;
 
 class DadataClient
 {
-    private $cleaner;
-    private $profile;
-    private $suggestions;
+    private CleanClient $cleaner;
+    private ProfileClient $profile;
+    private SuggestClient $suggestions;
 
-    public function __construct($token, $secret)
+    public function __construct(string $token, ?string $secret = null, array $options = [])
     {
-        $this->cleaner = new CleanClient($token, $secret);
-        $this->profile = new ProfileClient($token, $secret);
-        $this->suggestions = new SuggestClient($token);
+        $settings = new Settings($token, $secret, $options);
+        $this->cleaner = new CleanClient($settings);
+        $this->profile = new ProfileClient($settings);
+        $this->suggestions = new SuggestClient($settings);
     }
 
-    public function clean($name, $value)
+    public function clean($name, $value): array
     {
         return $this->cleaner->clean($name, $value);
     }
 
-    public function cleanRecord($structure, $record)
+    public function cleanRecord($structure, $record): array
     {
         return $this->cleaner->cleanRecord($structure, $record);
     }
 
-    public function findAffiliated($query, $count = Settings::SUGGESTION_COUNT, $kwargs = [])
+    public function findAffiliated($query, $count = Settings::SUGGESTION_COUNT, $kwargs = []): array
     {
         return $this->suggestions->findAffiliated($query, $count, $kwargs);
     }
 
-    public function findById($name, $query, $count = Settings::SUGGESTION_COUNT, $kwargs = [])
+    public function findById($name, $query, $count = Settings::SUGGESTION_COUNT, $kwargs = []): array
     {
         return $this->suggestions->findById($name, $query, $count, $kwargs);
     }
 
-    public function geolocate($name, $lat, $lon, $radiusMeters = 100, $count = Settings::SUGGESTION_COUNT, $kwargs = [])
-    {
+    public function geolocate(
+        $name,
+        $lat,
+        $lon,
+        $radiusMeters = 100,
+        $count = Settings::SUGGESTION_COUNT,
+        $kwargs = []
+    ): array {
         return $this->suggestions->geolocate($name, $lat, $lon, $radiusMeters, $count, $kwargs);
     }
 
-    public function getBalance()
+    public function getBalance(): float
     {
         return $this->profile->getBalance();
     }
 
-    public function getDailyStats($date = null)
+    public function getDailyStats($date = null): array
     {
         return $this->profile->getDailyStats($date);
     }
 
-    public function getVersions()
+    public function getVersions(): array
     {
         return $this->profile->getVersions();
     }

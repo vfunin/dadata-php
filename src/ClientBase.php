@@ -1,39 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Dadata;
+
+use GuzzleHttp\Client;
 
 abstract class ClientBase
 {
-    public $client;
+    public Client $client;
 
-    public function __construct($baseUrl, $token, $secret = null)
+    public function __construct(string $baseUrl, Settings $settings)
     {
         $headers = [
-            "Content-Type" => "application/json",
-            "Accept" => "application/json",
-            "Authorization" => "Token " . $token,
+            "Content-Type"  => "application/json",
+            "Accept"        => "application/json",
+            "Authorization" => "Token ".$settings->getToken(),
         ];
-        if ($secret) {
-            $headers["X-Secret"] = $secret;
+        if ($settings->getSecret()) {
+            $headers["X-Secret"] = $settings->getSecret();
         }
-        $this->client = new \GuzzleHttp\Client([
-            "base_uri" => $baseUrl,
-            "headers" => $headers,
-            "timeout" => Settings::TIMEOUT_SEC
-        ]);
+        $this->client = new Client(
+            array_merge($settings->getOptions(), [
+                "base_uri" => $baseUrl,
+                "headers"  => $headers,
+                "timeout"  => Settings::TIMEOUT_SEC,
+            ])
+        );
     }
 
-    protected function get($url, $query = [])
+    protected function get(string $url, array $query = []): array
     {
         $response = $this->client->get($url, ["query" => $query]);
-        return json_decode($response->getBody(), true);
+
+        return json_decode($response->getBody()->getContents(), true);
     }
 
-    protected function post($url, $data)
+    protected function post(string $url, array $data): array
     {
         $response = $this->client->post($url, [
-            "json" => $data
+            "json" => $data,
         ]);
-        return json_decode($response->getBody(), true);
+
+        return json_decode($response->getBody()->getContents(), true);
     }
 }
