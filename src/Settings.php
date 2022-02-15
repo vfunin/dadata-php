@@ -8,15 +8,19 @@ class Settings
 {
     const SUGGESTION_COUNT = 5;
     const TIMEOUT_SEC = 3;
+    const FORMAT_JSON = 'application/json';
+    const FORMAT_XML = 'application/xml';
+    private string $format;
     private array $options;
     private ?string $secret;
     private string $token;
 
-    public function __construct(string $token, ?string $secret = null, array $options = [])
+    public function __construct(string $token, ?string $secret = null, array $options = [], string $format = self::FORMAT_JSON)
     {
         $this->token = $token;
         $this->secret = $secret;
         $this->options = $options;
+        $this->format = $format;
     }
 
     /**
@@ -25,6 +29,14 @@ class Settings
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormat(): string
+    {
+        return $this->format;
     }
 
     /**
@@ -41,5 +53,15 @@ class Settings
     public function getToken(): string
     {
         return $this->token;
+    }
+
+    public function isJSON(): bool
+    {
+        return $this->getFormat() === self::FORMAT_JSON;
+    }
+
+    public function isXML(): bool
+    {
+        return $this->getFormat() === self::FORMAT_XML;
     }
 }

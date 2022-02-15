@@ -10,9 +10,9 @@ class DadataClient
     private ProfileClient $profile;
     private SuggestClient $suggestions;
 
-    public function __construct(string $token, ?string $secret = null, array $options = [])
+    public function __construct(string $token, ?string $secret = null, array $options = [], string $format = Settings::FORMAT_JSON)
     {
-        $settings = new Settings($token, $secret, $options);
+        $settings = new Settings($token, $secret, $options, $format);
         $this->cleaner = new CleanClient($settings);
         $this->profile = new ProfileClient($settings);
         $this->suggestions = new SuggestClient($settings);
@@ -33,7 +33,7 @@ class DadataClient
         return $this->suggestions->findAffiliated($query, $count, $kwargs);
     }
 
-    public function findById($name, $query, $count = Settings::SUGGESTION_COUNT, $kwargs = []): array
+    public function findById($name, $query, $count = Settings::SUGGESTION_COUNT, $kwargs = [])
     {
         return $this->suggestions->findById($name, $query, $count, $kwargs);
     }
