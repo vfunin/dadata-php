@@ -1,40 +1,44 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Dadata;
 
 use DateTime;
+use DateTimeInterface;
 
 class ProfileClient extends ClientBase
 {
     const BASE_URL = "https://dadata.ru/api/v2/";
 
-    public function __construct($token, $secret)
+    public function __construct(Settings $settings)
     {
-        parent::__construct(self::BASE_URL, $token, $secret);
+        parent::__construct(self::BASE_URL, $settings);
     }
 
-    public function getBalance()
+    public function getBalance(): float
     {
         $url = "profile/balance";
         $response = $this->get($url);
+
         return $response["balance"];
     }
 
-    public function getDailyStats($date = null)
+    public function getDailyStats(?DateTimeInterface $date = null): array
     {
         $url = "stat/daily";
-        if (!$date) {
+        if (is_null($date)) {
             $date = new DateTime();
         }
         $query = ["date" => $date->format("Y-m-d")];
-        $response = $this->get($url, $query);
-        return $response;
+
+        return $this->get($url, $query);
     }
 
-    public function getVersions()
+    public function getVersions(): array
     {
         $url = "version";
-        $response = $this->get($url);
-        return $response;
+
+        return $this->get($url);
     }
 }
